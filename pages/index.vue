@@ -4,14 +4,19 @@
       <v-card>
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title> 宅配お弁当 {{ str }}</v-list-item-title>
+            <v-list-item-title> ジブリ映画</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
-          <v-list-item-content>
-            {{ filterResponse }}
-          </v-list-item-content>
-        </v-list-item>
+        <v-list-item-group>
+          <v-list-item v-for="film in filterDirector" :key="film.id">
+            <v-list-item v-text="film.title"></v-list-item>
+          </v-list-item>
+        </v-list-item-group>
+        <v-list-item-group>
+          <v-list-item v-for="res in filterFactResponse" :key="res.id">
+            <v-list-item v-text="res.text"> </v-list-item>
+          </v-list-item>
+        </v-list-item-group>
       </v-card>
       <v-list>
         <v-subheader>REPORTS</v-subheader>
@@ -44,12 +49,23 @@ export interface FactResponse {
     name: {
       first: string;
       last: string;
-    }
-  },
+    };
+  };
+}
+export interface GhibliFilm {
+  id: string;
+  title: string;
+  description: string;
+  director: string;
+  producer: string;
+  release_date: number;
+  rt_score: number;
+  url: string;
 }
 @Component({ computed: {} })
 export default class index extends Vue {
   facts!: FactResponse[];
+  films!: GhibliFilm[];
   item = 1;
   items = [
     { text: "Real-Time", icon: "mdi-clock" },
@@ -63,17 +79,27 @@ export default class index extends Vue {
     const response = await context.app.$axios.$get(
       "https://cat-fact.herokuapp.com/facts"
     );
+    const films = await context.app.$axios.get(
+      "https://ghibliapi.herokuapp.com/films"
+    );
     const facts = response.all;
 
-    return { facts };
+    return { facts, films: films.data };
   }
 
   getYear(): string {
     return "hola";
   }
-  get filterResponse(): FactResponse[] {
+  get filterFactResponse(): FactResponse[] {
     return this.facts.filter(f => {
       return f.type == "cat";
+    }).filter( f => {
+      return f.upvotes > 10; 
+    });
+  }
+  get filterDirector(): GhibliFilm[]{
+    return this.films.filter(f => {
+      return f.director.includes('Miyazaki');
     });
   }
 }
