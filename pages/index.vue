@@ -32,8 +32,10 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { Component } from "nuxt-property-decorator";
+import { Context } from "@nuxt/types";
 
-interface FactResponse {
+export interface FactResponse {
   id: string;
   text: string;
   type: string;
@@ -45,36 +47,36 @@ interface FactResponse {
     }
   },
 }
-export default Vue.extend({
-  async asyncData({ app }){
-    const response = await app.$axios.$get('https://cat-fact.herokuapp.com/facts');
-    const arrays: FactResponse[] = response.all;
-    return {response, arrays}
+@Component({ computed: {} })
+export default class index extends Vue {
+  facts!: FactResponse[];
+  item = 1;
+  items = [
+    { text: "Real-Time", icon: "mdi-clock" },
+    { text: "Account", icon: "mdi-account" },
+    { text: "Conversions", icon: "mdi-flag" }
+  ];
+  str = "hola";
+  hours = new Date().getHours.toString;
 
-  },
-  data: () =>( {
-    response: '',
-    arrays: [],
-    item: 1,
-    items: [
-      { text: "Real-Time", icon: "mdi-clock" },
-      { text: "Account", icon: "mdi-account" },
-      { text: "Conversions", icon: "mdi-flag" }
-    ],
-    str: "hola",
-    hours: new Date().getHours.toString
-  }),
-  computed: {
-    filterResponse: function(){
-      return JSON.stringify(this.arrays.slice(0, 3));
-    }
-  },
-  methods: {
-    getYear(): string {
-      return "hola";
-    }
+  async asyncData(context: Context): Promise<object | void> {
+    const response = await context.app.$axios.$get(
+      "https://cat-fact.herokuapp.com/facts"
+    );
+    const facts = response.all;
+
+    return { facts };
   }
-});
+
+  getYear(): string {
+    return "hola";
+  }
+  get filterResponse(): FactResponse[] {
+    return this.facts.filter(f => {
+      return f.type == "cat";
+    });
+  }
+}
 </script>
 
 <style></style>
