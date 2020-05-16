@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.10.3",
-    "nuxt": "^2.0.0"
+    "nuxt": "^2.0.0",
+    "nuxt-property-decorator": "^2.7.2"
   },
   "devDependencies": {
     "@nuxt/typescript-build": "^0.6.0",
